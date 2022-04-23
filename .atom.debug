@@ -1,0 +1,16 @@
+{
+  "configurations": [
+    {
+      "name": "Easyredir Debug",
+      "mode": "debug",
+      "cwd": "${workspaceRoot}",
+      "args": [
+        "update",
+        "rule",
+        "--id",
+        "270f29fa-c72b-491a-87da-0664fcdaca49",
+        "--forward-path=false"
+      ]
+    }
+  ]
+}
