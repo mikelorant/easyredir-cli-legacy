@@ -18,6 +18,7 @@ import (
 
 var (
 	importFile string
+	preview		 bool
 
 	importCmd = &cobra.Command{
 		Use:   "import",
@@ -46,6 +47,7 @@ type Redirect struct {
 func init() {
 	rootCmd.AddCommand(importCmd)
 	importCmd.AddCommand(importRulesCmd)
+	importRulesCmd.Flags().BoolVarP(&preview, "preview", "", false, "Preview")
 	importRulesCmd.Flags().StringVarP(&importFile, "file", "", "", "Filename")
 	importRulesCmd.MarkFlagRequired("file")
 }
@@ -102,12 +104,14 @@ func doImportRules() {
 		// The actual target to redirect to.
 		rule.Data.Attributes.TargetURL = r.Redirect
 
-		res, err := c.CreateRule(&rule)
-		if err != nil {
-			log.Error().Err(err).Msg("")
-		}
+		if preview != true {
+			res, err := c.CreateRule(&rule)
+			if err != nil {
+				log.Error().Err(err).Msg("")
+			}
 
-		res.Print()
+			res.Print()
+		}
 	}
 }
 
