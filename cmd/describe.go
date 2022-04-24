@@ -8,18 +8,18 @@ import (
 )
 
 var (
-	describeID string
-
 	describeCmd = &cobra.Command{
 		Use:   "describe",
 		Short: "A brief description of your command",
 	}
 
 	describeHostCmd = &cobra.Command{
-		Use:   "host",
+		Use:   "host [id]",
 		Short: "A brief description of your command",
+		Args: cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			doDescribeHost()
+			id := args[0]
+			doDescribeHost(id)
 		},
 	}
 )
@@ -27,11 +27,9 @@ var (
 func init() {
 	rootCmd.AddCommand(describeCmd)
 	describeCmd.AddCommand(describeHostCmd)
-	describeHostCmd.Flags().StringVarP(&describeID, "id", "i", "", "Host ID")
-	describeHostCmd.MarkFlagRequired("id")
 }
 
-func doDescribeHost() {
+func doDescribeHost(id string) {
 	c, err := easyredir.NewClient()
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -39,7 +37,7 @@ func doDescribeHost() {
 	}
 
 	host := easyredir.Host{}
-	host.Data.ID = describeID
+	host.Data.ID = id
 	err = c.GetHost(&host)
 	if err != nil {
 		log.Error().Err(err).Msg("")

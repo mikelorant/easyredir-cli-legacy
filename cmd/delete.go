@@ -8,18 +8,18 @@ import (
 )
 
 var (
-	deleteID string
-
 	deleteCmd = &cobra.Command{
 		Use:   "delete",
 		Short: "A brief description of your command",
 	}
 
 	deleteRulesCmd = &cobra.Command{
-		Use:   "rule",
+		Use:   "rule [id]",
 		Short: "A brief description of your command",
+		Args: cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			doDeleteRules()
+			id := args[0]
+			doDeleteRules(id)
 		},
 	}
 )
@@ -27,11 +27,9 @@ var (
 func init() {
 	rootCmd.AddCommand(deleteCmd)
 	deleteCmd.AddCommand(deleteRulesCmd)
-	deleteRulesCmd.Flags().StringVarP(&deleteID, "id", "", "", "ID")
-	deleteRulesCmd.MarkFlagRequired("id")
 }
 
-func doDeleteRules() {
+func doDeleteRules(id string) {
 	c, err := easyredir.NewClient()
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -39,7 +37,7 @@ func doDeleteRules() {
 	}
 
 	rule := easyredir.Rule{}
-	rule.Data.ID = deleteID
+	rule.Data.ID = id
 
 	_, err = c.RemoveRule(&rule)
 	if err != nil {
