@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/MakeNowJust/heredoc/v2"
-	"github.com/jedib0t/go-pretty/text"
+	"github.com/alecthomas/chroma/quick"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"golang.org/x/term"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 type Host struct {
@@ -150,6 +150,7 @@ func (r *Hosts) Print() {
 	t.Style().Color = table.ColorOptions{}
 	t.Style().Box.PaddingLeft = ""
 	t.Style().Box.PaddingRight = "    "
+	t.Style().Color.Header = text.Colors{text.Bold}
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"ID", "NAME", "DNS STATUS", "CERTIFICATE STATUS"})
 	for _, h := range r.Data {
@@ -160,69 +161,58 @@ func (r *Hosts) Print() {
 
 func (r *Host) Print() {
 	tmpl := heredoc.Doc(`
-    {{ blue "ID" }}:   {{ .Data.ID | green }}
-    {{ blue "Type" }}: {{ .Data.Type | green }}
-    {{ blue "Attributes" }}:
-      {{ blue "Name" }}:               {{ .Data.Attributes.Name | green }}
-      {{ blue "DNS Status" }}:         {{ .Data.Attributes.DNSStatus | green }}
-      {{ blue "Certificate Status" }}: {{ .Data.Attributes.CertificateStatus | green }}
-      {{ blue "Match Options" }}:
-        {{ blue "Case Insensitive" }}:  {{ .Data.Attributes.MatchOptions.CaseInsensitive | green }}
-        {{ blue "Slash Insensitive" }}: {{ .Data.Attributes.MatchOptions.SlashInsensitive | green }}
-      {{ blue "Security" }}:
-        {{ blue "HTTPS Upgrade" }}:             {{ .Data.Attributes.Security.HTTPSUpgrade | green }}
-        {{ blue "Prevent Foreign Embedding" }}: {{ .Data.Attributes.Security.PreventForeignEmbedding | green }}
-        {{ blue "HSTS Include Sub Domains" }}:  {{ .Data.Attributes.Security.HstsIncludeSubDomains | green }}
-        {{ blue "HSTS Max Age" }}:              {{ .Data.Attributes.Security.HstsMaxAge | green }}
-        {{ blue "HSTS Preload" }}:              {{ .Data.Attributes.Security.HstsPreload | green }}
-      {{ blue "Not Found Action" }}:
-        {{ blue "Forward Params" }}:          {{ .Data.Attributes.NotFoundAction.ForwardParams | green }}
-        {{ blue "Forward Path" }}:            {{ .Data.Attributes.NotFoundAction.ForwardPath | green }}
-        {{ blue "Custom 404 Body Present" }}: {{ .Data.Attributes.NotFoundAction.Custom404BodyPresent | green }}
-        {{ blue "Response Code" }}:           {{ .Data.Attributes.NotFoundAction.ResponseCode | green }}
-        {{ blue "Response URL" }}:            {{ .Data.Attributes.NotFoundAction.ResponseURL | green }}
-      {{ blue "ACME Enabled" }}: {{ .Data.Attributes.AcmeEnabled | green }}
-      {{ blue "Detected DNS Entries" }}:
+    ID:   {{ .Data.ID  }}
+    Type: {{ .Data.Type  }}
+    Attributes:
+      Name:               {{ .Data.Attributes.Name  }}
+      DNS Status:         {{ .Data.Attributes.DNSStatus  }}
+      Certificate Status: {{ .Data.Attributes.CertificateStatus  }}
+      Match Options:
+        Case Insensitive:  {{ .Data.Attributes.MatchOptions.CaseInsensitive  }}
+        Slash Insensitive: {{ .Data.Attributes.MatchOptions.SlashInsensitive  }}
+      Security:
+        HTTPS Upgrade:             {{ .Data.Attributes.Security.HTTPSUpgrade  }}
+        Prevent Foreign Embedding: {{ .Data.Attributes.Security.PreventForeignEmbedding  }}
+        HSTS Include Sub Domains:  {{ .Data.Attributes.Security.HstsIncludeSubDomains  }}
+        HSTS Max Age:              {{ .Data.Attributes.Security.HstsMaxAge  }}
+        HSTS Preload:              {{ .Data.Attributes.Security.HstsPreload  }}
+      Not Found Action:
+        Forward Params:          {{ .Data.Attributes.NotFoundAction.ForwardParams  }}
+        Forward Path:            {{ .Data.Attributes.NotFoundAction.ForwardPath  }}
+        Custom 404 Body Present: {{ .Data.Attributes.NotFoundAction.Custom404BodyPresent  }}
+        Response Code:           {{ .Data.Attributes.NotFoundAction.ResponseCode  }}
+        Response URL:            {{ .Data.Attributes.NotFoundAction.ResponseURL  }}
+      ACME Enabled: {{ .Data.Attributes.AcmeEnabled  }}
+      Detected DNS Entries:
       {{- range .Data.Attributes.DetectedDNSEntries }}
-      - {{ blue "Type" }}: {{ .Type | green }}
-        {{ blue "Values" }}:
+      - Type: {{ .Type  }}
+        Values:
         {{- range .Values }}
-        - {{ . | green }}
+        - {{ .  }}
         {{- end }}
       {{- end }}
-      {{ blue "DNS Tested At" }}: {{ .Data.Attributes.DNSTestedAt | green }}
-      {{ blue "Required DNS Entries" }}:
-        {{ blue "Recommended" }}:
-        - {{ blue "Type" }}: {{ .Data.Attributes.RequiredDNSEntries.Recommended.Type | green }}
-          {{ blue "Values" }}:
+      DNS Tested At: {{ .Data.Attributes.DNSTestedAt  }}
+      Required DNS Entries:
+        Recommended:
+        - Type: {{ .Data.Attributes.RequiredDNSEntries.Recommended.Type  }}
+          Values:
           {{- range .Data.Attributes.RequiredDNSEntries.Recommended.Values }}
-          - {{ . | green}}
+          - {{ . }}
           {{- end }}
-        {{ blue "Alternatives" }}:
+        Alternatives:
         {{- range .Data.Attributes.RequiredDNSEntries.Alternatives }}
-        - {{ blue "Type" }}: {{ .Type | green }}
-          {{ blue "Values" }}:
+        - Type: {{ .Type  }}
+          Values:
           {{- range .Values }}
-          - {{ . | green }}
+          - {{ .  }}
           {{- end }}
         {{- end }}
   `)
 
-	if !term.IsTerminal(int(os.Stdout.Fd())) {
-		text.DisableColors()
-	}
+	var w bytes.Buffer
 
-	t := template.Must(template.
-		New("").
-		Funcs(map[string]interface{}{
-			"blue": func(v interface{}) string {
-				return text.FgHiBlue.Sprint(v)
-			},
-			"green": func(v interface{}) string {
-				return text.FgHiGreen.Sprint(v)
-			},
-		}).
-		Parse(tmpl))
+	t := template.Must(template.New("").Parse(tmpl))
+	t.Execute(&w, r)
 
-	t.Execute(os.Stdout, r)
+	quick.Highlight(os.Stdout, w.String(), "yaml", "terminal256", "pygments")
 }

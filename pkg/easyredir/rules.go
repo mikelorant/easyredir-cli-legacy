@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/table"
 	"net/http"
 	"os"
 	"text/template"
 
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
+
 	"github.com/MakeNowJust/heredoc/v2"
-	"github.com/jedib0t/go-pretty/text"
-	"golang.org/x/term"
+	"github.com/alecthomas/chroma/quick"
 )
 
 type Rule struct {
@@ -153,6 +154,7 @@ func (r *Rules) Print() {
 	t.Style().Color = table.ColorOptions{}
 	t.Style().Box.PaddingLeft = ""
 	t.Style().Box.PaddingRight = "    "
+	t.Style().Color.Header = text.Colors{text.Bold}
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"ID", "SOURCE URLS", "TARGET URL"})
 	for _, h := range r.Data {
@@ -170,35 +172,24 @@ func (r *Rules) Print() {
 }
 
 func (r *Rule) Print() {
+	var w bytes.Buffer
+
 	tmpl := heredoc.Doc(`
-    {{ blue "ID" }}:   {{ .Data.ID | green }}
-    {{ blue "Type" }}: {{ .Data.Type | green }}
-    {{ blue "Attributes" }}:
-      {{ blue "Forward Query" }}: {{ .Data.Attributes.ForwardParams | green }}
-      {{ blue "Forward Path" }}:  {{ .Data.Attributes.ForwardPath | green }}
-      {{ blue "Response Type" }}: {{ .Data.Attributes.ResponseType | green }}
-      {{ blue "Source URLs" }}:
+    ID:   {{ .Data.ID }}
+    Type: {{ .Data.Type }}
+    Attributes:
+      Forward Query: {{ .Data.Attributes.ForwardParams }}
+      Forward Path:  {{ .Data.Attributes.ForwardPath }}
+      Response Type: {{ .Data.Attributes.ResponseType }}
+      Source URLs:
       {{- range .Data.Attributes.SourceUrls }}
-      - {{ . | green }}
+      - {{ .}}
       {{- end }}
-      {{ blue "Target URL" }}:    {{ .Data.Attributes.TargetURL | green }}
+      Target URL:    {{ .Data.Attributes.TargetURL }}
   `)
 
-	if !term.IsTerminal(int(os.Stdout.Fd())) {
-		text.DisableColors()
-	}
+	t := template.Must(template.New("").Parse(tmpl))
+	t.Execute(&w, r)
 
-	t := template.Must(template.
-		New("").
-		Funcs(map[string]interface{}{
-			"blue": func(v interface{}) string {
-				return text.FgHiBlue.Sprint(v)
-			},
-			"green": func(v interface{}) string {
-				return text.FgHiGreen.Sprint(v)
-			},
-		}).
-		Parse(tmpl))
-
-	t.Execute(os.Stdout, r)
+	quick.Highlight(os.Stdout, w.String(), "yaml", "terminal256", "pygments")
 }

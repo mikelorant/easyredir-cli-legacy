@@ -9,8 +9,6 @@ import (
 )
 
 var (
-	updateID string
-
 	updateRulesForwardParams           bool
 	updateRulesForwardPath             bool
 	updateRulesResponseType            string
@@ -35,20 +33,24 @@ var (
 	}
 
 	updateRulesCmd = &cobra.Command{
-		Use:   "rule",
+		Use:   "rule [id]",
 		Short: "A brief description of your command",
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			flagsChanged = getFlagsChanged(cmd)
-			doUpdateRules()
+			id := args[0]
+			doUpdateRules(id)
 		},
 	}
 
 	updateHostsCmd = &cobra.Command{
-		Use:   "host",
+		Use:   "host [id]",
 		Short: "A brief description of your command",
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			flagsChanged = getFlagsChanged(cmd)
-			doUpdateHosts()
+			id := args[0]
+			doUpdateHosts(id)
 		},
 	}
 )
@@ -57,7 +59,6 @@ func init() {
 	rootCmd.AddCommand(updateCmd)
 	updateCmd.AddCommand(updateRulesCmd)
 
-	updateRulesCmd.Flags().StringVarP(&updateID, "id", "i", defaultID, "ID")
 	updateRulesCmd.Flags().BoolVarP(&updateRulesForwardParams, "forward-params", "", defaultForwardParams, "Forward params")
 	updateRulesCmd.Flags().BoolVarP(&updateRulesForwardPath, "forward-path", "", defaultForwardPath, "Forward path")
 	updateRulesCmd.Flags().StringVarP(&updateRulesResponseType, "response-type", "", defaultResponseType, "Response type")
@@ -66,7 +67,6 @@ func init() {
 	updateRulesCmd.MarkFlagRequired("id")
 
 	updateCmd.AddCommand(updateHostsCmd)
-	updateHostsCmd.Flags().StringVarP(&updateID, "id", "i", defaultID, "Forward params")
 	updateHostsCmd.Flags().BoolVarP(&updateHostsCaseInsensitive, "case-insensitive", "", defaultCaseInsensitive, "Case insensitive")
 	updateHostsCmd.Flags().BoolVarP(&updateHostsSlashInsensitive, "slash-insensitive", "", defaultSlashInsensitive, "Slash insensitive")
 	updateHostsCmd.Flags().BoolVarP(&updateHostsForwardParams, "forward-params", "", defaultForwardParams, "Slash insensitive")
@@ -82,14 +82,14 @@ func init() {
 	updateHostsCmd.MarkFlagRequired("id")
 }
 
-func doUpdateRules() {
+func doUpdateRules(id string) {
 	c, err := easyredir.NewClient()
 	if err != nil {
 		log.Error().Err(err).Msg("")
 	}
 
 	rule := easyredir.Rule{}
-	rule.Data.ID = updateID
+	rule.Data.ID = id
 
 	rules, err := c.ListRules(&easyredir.RulesOptions{
 		Limit: 1,
@@ -134,7 +134,7 @@ func doUpdateRules() {
 	res.Print()
 }
 
-func doUpdateHosts() {
+func doUpdateHosts(id string) {
 	c, err := easyredir.NewClient()
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -142,7 +142,7 @@ func doUpdateHosts() {
 	}
 
 	host := easyredir.Host{}
-	host.Data.ID = updateID
+	host.Data.ID = id
 
 	c.GetHost(&host)
 
