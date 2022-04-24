@@ -16,7 +16,7 @@ var (
 	deleteRulesCmd = &cobra.Command{
 		Use:   "rule [id]",
 		Short: "A brief description of your command",
-		Args: cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			id := args[0]
 			doDeleteRules(id)

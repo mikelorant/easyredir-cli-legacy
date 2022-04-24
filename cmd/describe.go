@@ -16,7 +16,7 @@ var (
 	describeHostCmd = &cobra.Command{
 		Use:   "host [id]",
 		Short: "A brief description of your command",
-		Args: cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			id := args[0]
 			doDescribeHost(id)
