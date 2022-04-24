@@ -1,6 +1,7 @@
 package easyredir
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -10,11 +11,10 @@ import (
 	"text/template"
 
 	"github.com/MakeNowJust/heredoc/v2"
+	"github.com/alecthomas/chroma/quick"
 	"github.com/google/uuid"
-	"github.com/jedib0t/go-pretty/text"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"golang.org/x/term"
 )
 
 const (
@@ -126,32 +126,21 @@ func authorization(username string, password string) (credential string) {
 
 func (e *errorResponse) Print() {
 	tmpl := heredoc.Doc(`
-    {{ blue "Type" }}:   {{ .Type| green }}
-    {{ blue "Message" }}: {{ .Message | green }}
-    {{ blue "Errors" }}:
+    Type:   {{ .Type }}
+    Message: {{ .Message }}
+    Errors:
     {{- range .Errors }}
-    - {{ blue "Resource" }}: {{ .Resource | green }}
-      {{ blue "Code" }}:  {{ .Code | green }}
-      {{ blue "Param" }}: {{ .Param | green }}
-      {{ blue "Message" }}: {{ .Message | green }}
+    - Resource: {{ .Resource }}
+      Code:  {{ .Code }}
+      Param: {{ .Param }}
+      Message: {{ .Message }}
     {{- end}}
   `)
 
-	if !term.IsTerminal(int(os.Stdout.Fd())) {
-		text.DisableColors()
-	}
+	var w bytes.Buffer
 
-	t := template.Must(template.
-		New("").
-		Funcs(map[string]interface{}{
-			"blue": func(v interface{}) string {
-				return text.FgHiBlue.Sprint(v)
-			},
-			"green": func(v interface{}) string {
-				return text.FgHiGreen.Sprint(v)
-			},
-		}).
-		Parse(tmpl))
+	t := template.Must(template.New("").Parse(tmpl))
+	t.Execute(&w, e)
 
-	t.Execute(os.Stdout, e)
+	quick.Highlight(os.Stdout, w.String(), "yaml", "terminal256", "pygments")
 }

@@ -172,8 +172,6 @@ func (r *Rules) Print() {
 }
 
 func (r *Rule) Print() {
-	var w bytes.Buffer
-
 	tmpl := heredoc.Doc(`
     ID:   {{ .Data.ID }}
     Type: {{ .Data.Type }}
@@ -187,6 +185,8 @@ func (r *Rule) Print() {
       {{- end }}
       Target URL:    {{ .Data.Attributes.TargetURL }}
   `)
+
+	var w bytes.Buffer
 
 	t := template.Must(template.New("").Parse(tmpl))
 	t.Execute(&w, r)
