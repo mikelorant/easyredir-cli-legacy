@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"text/tabwriter"
 	"text/template"
 	"time"
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/jedib0t/go-pretty/text"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"golang.org/x/term"
 )
 
@@ -143,16 +143,19 @@ func (c *Client) UpdateHost(h *Host) (host *Host, err error) {
 }
 
 func (r *Hosts) Print() {
-	w := tabwriter.NewWriter(os.Stdout, 10, 1, 5, ' ', 0)
+	t := table.NewWriter()
 
-	const fs = "%s\t%s\t%s\t%s\n"
-	fmt.Fprintf(w, fs, "ID", "NAME", "DNS STATUS", "CERTIFICATE STATUS")
-
+	t.SetStyle(table.StyleColoredBright)
+	t.Style().Options.DrawBorder = false
+	t.Style().Color = table.ColorOptions{}
+	t.Style().Box.PaddingLeft = ""
+	t.Style().Box.PaddingRight = "    "
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "NAME", "DNS STATUS", "CERTIFICATE STATUS"})
 	for _, h := range r.Data {
-		fmt.Fprintf(w, fs, h.ID, h.Attributes.Name, h.Attributes.DNSStatus, h.Attributes.CertificateStatus)
+		t.AppendRow(table.Row{h.ID, h.Attributes.Name, h.Attributes.DNSStatus, h.Attributes.CertificateStatus})
 	}
-
-	w.Flush()
+	t.Render()
 }
 
 func (r *Host) Print() {

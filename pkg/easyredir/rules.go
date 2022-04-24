@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"net/http"
 	"os"
 	"text/template"
-	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/jedib0t/go-pretty/text"
@@ -152,7 +152,7 @@ func (r *Rules) Print() {
 	t.Style().Options.DrawBorder = false
 	t.Style().Color = table.ColorOptions{}
 	t.Style().Box.PaddingLeft = ""
-	t.Style().Box.PaddingRight = "\t"
+	t.Style().Box.PaddingRight = "    "
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"ID", "SOURCE URLS", "TARGET URL"})
 	for _, h := range r.Data {
