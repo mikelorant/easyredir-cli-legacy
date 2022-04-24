@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"text/tabwriter"
 	"text/template"
+	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/jedib0t/go-pretty/text"
@@ -146,16 +146,27 @@ func (c *Client) RemoveRule(r *Rule) (rule *Rule, err error) {
 }
 
 func (r *Rules) Print() {
-	w := tabwriter.NewWriter(os.Stdout, 10, 1, 5, ' ', 0)
+	t := table.NewWriter()
 
-	const fs = "%s\t%s\t%s\n"
-	fmt.Fprintf(w, fs, "ID", "SOURCE URLS", "TARGET URL")
-
+	t.SetStyle(table.StyleColoredBright)
+	t.Style().Options.DrawBorder = false
+	t.Style().Color = table.ColorOptions{}
+	t.Style().Box.PaddingLeft = ""
+	t.Style().Box.PaddingRight = "\t"
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "SOURCE URLS", "TARGET URL"})
 	for _, h := range r.Data {
-		fmt.Fprintf(w, fs, h.ID, h.Attributes.SourceURLs, h.Attributes.TargetURL)
+		row := []table.Row{}
+		for i, s := range h.Attributes.SourceURLs {
+			if i == 0 {
+				row = append(row, table.Row{h.ID, s, h.Attributes.TargetURL})
+				continue
+			}
+			row = append(row, table.Row{"", s, ""})
+		}
+		t.AppendRows(row)
 	}
-
-	w.Flush()
+	t.Render()
 }
 
 func (r *Rule) Print() {
