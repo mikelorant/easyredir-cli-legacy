@@ -59,8 +59,7 @@ type Host struct {
 				} `json:"alternatives"`
 			} `json:"required_dns_entries"`
 		} `json:"attributes"`
-		Links struct {
-		} `json:"links"`
+		Links struct{} `json:"links"`
 	} `json:"data"`
 }
 

@@ -190,5 +190,4 @@ func (r *Rule) Print() {
 		Parse(tmpl))
 
 	t.Execute(os.Stdout, r)
-
 }

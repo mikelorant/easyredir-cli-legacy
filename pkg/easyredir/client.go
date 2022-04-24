@@ -49,7 +49,6 @@ type Links struct {
 }
 
 func NewClient() (c *Client, err error) {
-
 	if key := viper.GetString("api.key"); key == "" {
 		return nil, fmt.Errorf("NewClient: missing api.key")
 	}
