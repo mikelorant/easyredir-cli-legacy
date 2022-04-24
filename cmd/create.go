@@ -31,9 +31,9 @@ var (
 func init() {
 	rootCmd.AddCommand(createCmd)
   createCmd.AddCommand(createRulesCmd)
-  createRulesCmd.Flags().BoolVarP(&createForwardParams, "forward-params", "", true, "Forward params")
-  createRulesCmd.Flags().BoolVarP(&createForwardPath, "forward-path", "", true, "Forward path")
-  createRulesCmd.Flags().StringVarP(&createResponseType, "response-type", "", "moved_permanently", "Response type")
+  createRulesCmd.Flags().BoolVarP(&createForwardParams, "forward-params", "", defaultForwardParams, "Forward params")
+  createRulesCmd.Flags().BoolVarP(&createForwardPath, "forward-path", "", defaultForwardPath, "Forward path")
+  createRulesCmd.Flags().StringVarP(&createResponseType, "response-type", "", defaultResponseType, "Response type")
   createRulesCmd.Flags().StringSliceVarP(&createSourceUrls, "source-urls", "", nil, "Source URLs")
   createRulesCmd.Flags().StringVarP(&createTargetURL, "target-url", "", "", "Target URL")
   createRulesCmd.MarkFlagRequired("source-urls")

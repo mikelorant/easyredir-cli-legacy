@@ -10,12 +10,34 @@ import (
   "github.com/rs/zerolog/log"
 )
 
+const (
+  defaultCaseInsensitive bool = false // verified
+  defaultCustom404Body string = "" // verified
+  defaultForwardParams bool = true
+  defaultForwardPath bool = true
+  defaultHSTSIncludeSubDomains bool = false // verified
+  defaultHSTSMaxAge int = 0 // verified
+  defaultHSTSPreload bool = false // verified
+  defaultHTTPSUpgrade bool = false // verified
+  defaultID string = "" // verified
+  defaultPreventForeignEmbedding bool = false
+  defaultResponseCode int = 301
+  defaultResponseType string = "moved_permanently"
+  defaultResponseURL string = ""
+  defaultSlashInsensitive bool = false // verified
+  defaultTargetURL string = ""
+)
+
 var (
 	cfgFile string
 
 	limit	int
 	startingAfter	string
 	endingBefore	string
+
+	flagsChanged  []string
+
+	defaultSourceURLS []string = []string{}
 )
 
 var rootCmd = &cobra.Command{
