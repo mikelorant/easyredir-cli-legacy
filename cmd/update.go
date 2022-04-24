@@ -91,9 +91,7 @@ func doUpdateRules(id string) {
 	rule := easyredir.Rule{}
 	rule.Data.ID = id
 
-	rules, err := c.ListRules(&easyredir.RulesOptions{
-		Limit: 1,
-	})
+	rules, err := c.ListRules(&easyredir.RulesOptions{})
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to list rules.")
 	}

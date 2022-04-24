@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"text/template"
 	"time"
@@ -86,24 +87,45 @@ type HostsOptions struct {
 	EndingBefore  string `json:"ending_before"`
 }
 
-func (c *Client) ListHosts(options *HostsOptions) (hosts *Hosts, err error) {
-	limit := 25
+func (c *Client) ListHosts(options *HostsOptions) (hosts Hosts, err error) {
+	limit := 100
+
 	var startingAfter string
 	var endingBefore string
 
-	if options != nil {
-		limit = options.Limit
-		startingAfter = options.StartingAfter
-		endingBefore = options.EndingBefore
-	}
+	for {
+		res := Hosts{}
+		req := &http.Request{}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/hosts?limit=%d&starting_after=%s&ending_before=%s", c.baseURL, limit, startingAfter, endingBefore), nil)
-	if err != nil {
-		return nil, fmt.Errorf("ListHosts: unable to create request: %w", err)
-	}
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/hosts?limit=%d&starting_after=%s&ending_before=%s", c.baseURL, limit, startingAfter, endingBefore), nil)
+		if err != nil {
+			return hosts, fmt.Errorf("ListHosts: unable to create request: %w", err)
+		}
 
-	if err = c.sendRequest(req, &hosts); err != nil {
-		return nil, fmt.Errorf("ListHosts: unable to send request: %w", err)
+		if err = c.sendRequest(req, &res); err != nil {
+			return hosts, fmt.Errorf("ListHosts: unable to send request: %w", err)
+		}
+
+		hosts.Data = append(hosts.Data, res.Data...)
+
+		if res.Meta.HasMore == false {
+			break
+		}
+
+		if res.Links.Next != "" {
+			u, err := url.Parse(res.Links.Next)
+			if err != nil {
+				panic(err)
+			}
+			startingAfter = u.Query().Get("starting_after")
+		}
+		// if res.Links.Prev != "" {
+		// 	u, err := url.Parse(res.Links.Prev)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	endingBefore = u.Query().Get("ending_before")
+		// }
 	}
 
 	return hosts, nil

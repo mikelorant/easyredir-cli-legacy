@@ -30,7 +30,6 @@ const (
 var (
 	cfgFile string
 
-	limit         int
 	startingAfter string
 	endingBefore  string
 
@@ -55,7 +54,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.easyredir.yaml)")
-	rootCmd.PersistentFlags().IntVar(&limit, "limit", 25, "pagination limit")
 	rootCmd.PersistentFlags().StringVar(&startingAfter, "starting-after", "", "starting after")
 	rootCmd.PersistentFlags().StringVar(&endingBefore, "ending-before", "", "ending before")
 

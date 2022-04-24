@@ -48,11 +48,7 @@ func doGetHosts() {
 		return
 	}
 
-	o := easyredir.HostsOptions{
-		Limit:         limit,
-		StartingAfter: startingAfter,
-		EndingBefore:  endingBefore,
-	}
+	o := easyredir.HostsOptions{}
 	hosts, err := c.ListHosts(&o)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -69,11 +65,8 @@ func doGetRules() {
 	}
 
 	o := easyredir.RulesOptions{
-		Limit:         limit,
 		SourceURL:     getSourceURL,
 		TargetURL:     getTargetURL,
-		StartingAfter: startingAfter,
-		EndingBefore:  endingBefore,
 	}
 	rules, err := c.ListRules(&o)
 	if err != nil {

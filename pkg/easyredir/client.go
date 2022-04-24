@@ -44,8 +44,8 @@ type Meta struct {
 }
 
 type Links struct {
-	Next interface{} `json:"next"`
-	Prev interface{} `json:"prev"`
+	Next string `json:"next"`
+	Prev string `json:"prev"`
 }
 
 func NewClient() (c *Client, err error) {

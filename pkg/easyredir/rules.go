@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"text/template"
 
@@ -75,25 +76,53 @@ type RulesOptions struct {
 	TargetURL     string `json:"tq"`
 }
 
-func (c *Client) ListRules(options *RulesOptions) (rules *Rules, err error) {
-	limit := 25
+func (c *Client) ListRules(options *RulesOptions) (rules Rules, err error) {
+	limit := 100
 
 	var sourceURL string
 	var targetURL string
 
+	var startingAfter string
+	var endingBefore string
+
 	if options != nil {
-		limit = options.Limit
 		sourceURL = options.SourceURL
 		targetURL = options.TargetURL
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/rules?limit=%d&sq=%s&tq=%s", c.baseURL, limit, sourceURL, targetURL), nil)
-	if err != nil {
-		return nil, fmt.Errorf("ListRules: unable to create request: %w", err)
-	}
+	for {
+		res := Rules{}
+		req := &http.Request{}
 
-	if err = c.sendRequest(req, &rules); err != nil {
-		return nil, fmt.Errorf("ListRules: unable to send request: %w", err)
+		req, err = http.NewRequest("GET", fmt.Sprintf("%s/rules?limit=%d&sq=%s&tq=%s&starting_after=%s&ending_before=%s", c.baseURL, limit, sourceURL, targetURL, startingAfter, endingBefore), nil)
+		if err != nil {
+			return rules, fmt.Errorf("ListRules: unable to create request: %w", err)
+		}
+
+		if err = c.sendRequest(req, &res); err != nil {
+			return rules, fmt.Errorf("ListRules: unable to send request: %w", err)
+		}
+
+		rules.Data = append(rules.Data, res.Data...)
+
+		if res.Meta.HasMore == false {
+			break
+		}
+
+		if res.Links.Next != "" {
+			u, err := url.Parse(res.Links.Next)
+			if err != nil {
+				panic(err)
+			}
+			startingAfter = u.Query().Get("starting_after")
+		}
+		// if res.Links.Prev != "" {
+		// 	u, err := url.Parse(res.Links.Prev)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	endingBefore = u.Query().Get("ending_before")
+		// }
 	}
 
 	return rules, nil
