@@ -27,18 +27,19 @@ type Rule struct {
 			SourceUrls    []string `json:"source_urls"`
 			TargetURL     string   `json:"target_url"`
 		} `json:"attributes"`
+		Relationships struct {
+			SourceHosts struct {
+				Data []struct {
+					ID   string `json:"id"`
+					Type string `json:"type"`
+				} `json:"data"`
+				Links struct {
+					Related string `json:"related"`
+				} `json:"links"`
+			} `json:"source_hosts"`
+		} `json:"relationships"`
 	} `json:"data"`
-	Relationships struct {
-		RelationshipType struct {
-			Data []struct {
-				ID   string `json:"id"`
-				Type string `json:"type"`
-			} `json:"data"`
-			Links struct {
-				Related string `json:"related"`
-			} `json:"links"`
-		} `json:"[relationship type]"`
-	} `json:"relationships"`
+	Included interface{} `json:"included"`
 }
 
 type Rules struct {
@@ -213,6 +214,11 @@ func (r *Rule) Print() {
       - {{ .}}
       {{- end }}
       Target URL:    {{ .Data.Attributes.TargetURL }}
+    Relationships:
+      Source Hosts:
+      {{- range .Data.Relationships.SourceHosts.Data }}
+      - {{ .ID }}
+      {{- end }}
   `)
 
 	var w bytes.Buffer

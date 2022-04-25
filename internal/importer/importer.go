@@ -16,6 +16,11 @@ func Import(options *Options) {
 		r := HieraRedirects{}
 		r.Load(options.File)
 		r.Import(options.Preview)
+	case "yaml":
+		r := YAMLRedirects{}
+		r.Load(options.File)
+		r.Defaults()
+		r.Import(options.Preview)
 	default:
 		fmt.Println("Unknown format.")
 	}
