@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	importFile string
-	preview    bool
+	importFile    string
+	importFormat  string
+	importPreview bool
 
 	importCmd = &cobra.Command{
 		Use:   "import",
@@ -27,13 +28,16 @@ var (
 func init() {
 	rootCmd.AddCommand(importCmd)
 	importCmd.AddCommand(importRulesCmd)
-	importRulesCmd.Flags().BoolVarP(&preview, "preview", "", false, "Preview")
+	importRulesCmd.Flags().BoolVarP(&importPreview, "preview", "", false, "Preview")
 	importRulesCmd.Flags().StringVarP(&importFile, "file", "", "", "Filename")
+	importRulesCmd.Flags().StringVarP(&importFormat, "format", "", "", "Filename")
 	importRulesCmd.MarkFlagRequired("file")
 }
 
 func doImportRules() {
-	redirects := &importer.Redirects{}
-	redirects.Load(importFile)
-	redirects.Import(preview)
+	importer.Import(&importer.Options{
+		File:    importFile,
+		Format:  importFormat,
+		Preview: importPreview,
+	})
 }

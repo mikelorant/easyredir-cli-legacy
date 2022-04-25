@@ -16,9 +16,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Redirects []Redirect
+type HieraRedirects []HieraRedirect
 
-type Redirect struct {
+type HieraRedirect struct {
 	Name          string
 	Aliases       []string `yaml:"aliases"`
 	ExtraRewrites []string `yaml:"extra_rewrites"`
@@ -26,31 +26,31 @@ type Redirect struct {
 	Redirect      string   `yaml:"redirect"`
 	SquashPath    bool     `yaml:"squash_path"`
 	Type          int      `yaml:"type"`
-	RewriteRules  []RewriteRule
+	RewriteRules  []HieraRewriteRule
 }
 
-type RewriteRules []RewriteRule
+type HieraRewriteRules []HieraRewriteRule
 
-type RewriteRule struct {
+type HieraRewriteRule struct {
 	Pattern string
 	Target  string
-	Flags   RewriteRuleFlags
+	Flags   HieraRewriteRuleFlags
 }
 
-type RewriteRuleFlags struct {
+type HieraRewriteRuleFlags struct {
 	Last               bool // [L]
 	NoEscape           bool // [NE]
 	QueryStringDiscard bool // [QSD]
 	Redirect           int  // [R=x]
 }
 
-func (rs *Redirects) Load(file string) {
+func (rs *HieraRedirects) Load(file string) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		panic(err)
 	}
 
-	rawRedirects := make(map[string]map[string]Redirect)
+	rawRedirects := make(map[string]map[string]HieraRedirect)
 
 	err = yaml.Unmarshal(data, &rawRedirects)
 	if err != nil {
@@ -59,7 +59,7 @@ func (rs *Redirects) Load(file string) {
 
 	for k, v := range rawRedirects["web_redirects"] {
 		v.Name = k
-		v.RewriteRules = RewriteRules{}
+		v.RewriteRules = HieraRewriteRules{}
 		v.parseRewrites()
 		*rs = append(*rs, v)
 	}
@@ -67,15 +67,15 @@ func (rs *Redirects) Load(file string) {
 	return
 }
 
-func (r *Redirect) parseRewrites() {
+func (r *HieraRedirect) parseRewrites() {
 	for _, rewrite := range r.ExtraRewrites {
-		rr := RewriteRule{}
+		rr := HieraRewriteRule{}
 
 		rs := strings.Split(rewrite, " ")
 		rr.Pattern = rs[0]
 		rr.Target = rs[1]
 		if len(rs) == 3 {
-			rr.Flags = RewriteRuleFlags{}
+			rr.Flags = HieraRewriteRuleFlags{}
 			rr.Flags.parseFlags(rs[2])
 		}
 
@@ -85,7 +85,7 @@ func (r *Redirect) parseRewrites() {
 	return
 }
 
-func (flags *RewriteRuleFlags) parseFlags(f string) {
+func (flags *HieraRewriteRuleFlags) parseFlags(f string) {
 	ft := strings.Trim(f, "[]")
 	fs := strings.Split(ft, ",")
 	for _, v := range fs {
@@ -108,7 +108,7 @@ func (flags *RewriteRuleFlags) parseFlags(f string) {
 	return
 }
 
-func (rs *Redirects) Import(preview bool) {
+func (rs *HieraRedirects) Import(preview bool) {
 	c, err := easyredir.NewClient()
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -155,7 +155,7 @@ func (rs *Redirects) Import(preview bool) {
 	return
 }
 
-func (r *Redirect) Print() {
+func (r *HieraRedirect) Print() {
 	tmpl := heredoc.Doc(`
     Name: {{ .Name }}
     Host: {{ .Host }}
