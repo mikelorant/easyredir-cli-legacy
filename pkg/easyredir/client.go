@@ -11,6 +11,7 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/alecthomas/chroma/quick"
 	"github.com/google/uuid"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -109,6 +110,8 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) (err error) {
 }
 
 func (e *errorResponse) Print() {
+	fmt.Println(text.FgRed.Sprint("ERROR:\n"))
+
 	tmpl := heredoc.Doc(`
     Type:   {{ .Type }}
     Message: {{ .Message }}

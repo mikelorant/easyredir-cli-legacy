@@ -13,6 +13,7 @@ import (
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/alecthomas/chroma/quick"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
@@ -156,43 +157,45 @@ func (rs *YAMLRedirects) Defaults() {
 }
 
 func (r *YAMLRedirect) Print() {
+	fmt.Println(text.FgCyan.Sprint("CONFIG:\n"))
+
 	tmpl := heredoc.Doc(`
-    {{- with .Meta }}
-    Meta:
-      {{- with .Name }}
-      Name: {{ . }}
-      {{- end }}
-      {{- with .Description }}
-      Description: {{ . }}
-      {{- end }}
-      {{- with .Expires }}
-      Expires: {{ . }}
-      {{- end }}
-    {{- end }}
-    Sources:
-    {{- range .Sources }}
-    - URL: {{ .URL }}
-      Options:
-        Match Options:
-          Case Insensitive: {{ .Options.MatchOptions.CaseInsensitive }}
-          Slash Insensitive: {{ .Options.MatchOptions.SlashInsensitive }}
-        Not Found Action:
-          Forward Params: {{ .Options.NotFoundAction.ForwardParams }}
-          Forward Path: {{ .Options.NotFoundAction.ForwardPath }}
-          Custom 404 Body Present: {{ .Options.NotFoundAction.Custom404Body }}
-          Response Code: {{ .Options.NotFoundAction.ResponseCode }}
-          Response URL: {{ .Options.NotFoundAction.ResponseURL }}
-        Security:
-          HTTPS Upgrade: {{ .Options.Security.HTTPSUpgrade }}
-          Prevent Foreign Embedding: {{ .Options.Security.PreventForeignEmbedding }}
-          HSTS Include Sub Domains: {{ .Options.Security.HSTSIncludeSubDomains }}
-          HSTS Max Age: {{ .Options.Security.HSTSMaxAge }}
-          HSTS Preload: {{ .Options.Security.HSTSPreload }}
-    {{- end }}
-    Target URL: {{ .TargetURL }}
-    Forward Params: {{ .ForwardParams }}
-    Forward Path: {{ .ForwardPath }}
-    Response Type: {{ .ResponseType }}
+		{{- with .Meta }}
+		Meta:
+		  {{- with .Name }}
+		  Name: {{ . }}
+		  {{- end }}
+		  {{- with .Description }}
+		  Description: {{ . }}
+		  {{- end }}
+		  {{- with .Expires }}
+		  Expires: {{ . }}
+		  {{- end }}
+		{{- end }}
+		Sources:
+		{{- range .Sources }}
+		- URL: {{ .URL }}
+		  Options:
+		    Match Options:
+		      Case Insensitive: {{ .Options.MatchOptions.CaseInsensitive }}
+		      Slash Insensitive: {{ .Options.MatchOptions.SlashInsensitive }}
+		    Not Found Action:
+		      Forward Params: {{ .Options.NotFoundAction.ForwardParams }}
+		      Forward Path: {{ .Options.NotFoundAction.ForwardPath }}
+		      Custom 404 Body Present: {{ .Options.NotFoundAction.Custom404Body }}
+		      Response Code: {{ .Options.NotFoundAction.ResponseCode }}
+		      Response URL: {{ .Options.NotFoundAction.ResponseURL }}
+		    Security:
+		      HTTPS Upgrade: {{ .Options.Security.HTTPSUpgrade }}
+		      Prevent Foreign Embedding: {{ .Options.Security.PreventForeignEmbedding }}
+		      HSTS Include Sub Domains: {{ .Options.Security.HSTSIncludeSubDomains }}
+		      HSTS Max Age: {{ .Options.Security.HSTSMaxAge }}
+		      HSTS Preload: {{ .Options.Security.HSTSPreload }}
+		{{- end }}
+		Target URL: {{ .TargetURL }}
+		Forward Params: {{ .ForwardParams }}
+		Forward Path: {{ .ForwardPath }}
+		Response Type: {{ .ResponseType }}
 
   `)
 
@@ -233,6 +236,7 @@ func (rs *YAMLRedirects) Import(preview bool) {
 		res, err := c.CreateRule(&rule)
 		if err != nil {
 			log.Error().Err(err).Msg("")
+			return
 		}
 
 		res.Print()

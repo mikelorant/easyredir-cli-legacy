@@ -201,6 +201,8 @@ func (r *Rules) Print() {
 }
 
 func (r *Rule) Print() {
+	fmt.Println(text.FgYellow.Sprint("RULE:\n"))
+
 	tmpl := heredoc.Doc(`
     ID:   {{ .Data.ID }}
     Type: {{ .Data.Type }}
@@ -218,6 +220,7 @@ func (r *Rule) Print() {
       {{- range .Data.Relationships.SourceHosts.Data }}
       - {{ .ID }}
       {{- end }}
+
   `)
 
 	var w bytes.Buffer
