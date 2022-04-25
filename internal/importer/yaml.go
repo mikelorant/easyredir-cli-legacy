@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"text/template"
 	"time"
 
@@ -42,21 +43,21 @@ type YAMLRedirectSourceOptions struct {
 	MatchOptions struct {
 		CaseInsensitive  *bool `yaml:"case_insensitive"`
 		SlashInsensitive *bool `yaml:"slash_insensitive"`
-	}
+	} `yaml:"match_options"`
 	NotFoundAction struct {
 		ForwardParams *bool   `yaml:"forward_params"`
 		ForwardPath   *bool   `yaml:"forward_path"`
 		Custom404Body *string `yaml:"custom_404_body"`
 		ResponseCode  *int    `yaml:"response_code"`
 		ResponseURL   *string `yaml:"response_url"`
-	}
+	} `yaml:"not_found_action"`
 	Security struct {
 		HTTPSUpgrade            *bool `yaml:"https_upgrade"`
 		PreventForeignEmbedding *bool `yaml:"prevent_foreign_embedding"`
 		HSTSIncludeSubDomains   *bool `yaml:"hsts_include_subdomains"`
 		HSTSMaxAge              *int  `yaml:"hsts_max_age"`
 		HSTSPreload             *bool `yaml:"hsts_preload"`
-	}
+	} `yaml:"security"`
 }
 
 var (
@@ -69,7 +70,7 @@ var (
 
 	defaultNotFoundActionForwardParams bool = false
 	defaultNotFoundActionForwardPath   bool = false
-	defaultNotFoundActionResponseCode  int  = 302
+	defaultNotFoundActionResponseCode  int  = 404
 
 	defaultSecurityHTTPSUpgrade          bool = false
 	defaultSecurityHSTSIncludeSubDomains bool = false
@@ -225,10 +226,71 @@ func (rs *YAMLRedirects) Import(preview bool) {
 		}
 		rule.Data.Attributes.TargetURL = *r.TargetURL
 
-		if preview != true {
-			res, err := c.CreateRule(&rule)
+		if preview == true {
+			return
+		}
+
+		res, err := c.CreateRule(&rule)
+		if err != nil {
+			log.Error().Err(err).Msg("")
+		}
+
+		res.Print()
+
+		for i, v := range res.Data.Relationships.SourceHosts.Data {
+			host := &easyredir.Host{}
+			host.Data.ID = v.ID
+
+			source := strings.TrimRight(res.Data.Attributes.SourceUrls[i], "/")
+
+			for _, s := range r.Sources {
+				if *s.URL == source {
+					if s.Options.MatchOptions.CaseInsensitive != nil {
+						host.Data.Attributes.MatchOptions.CaseInsensitive = *s.Options.MatchOptions.CaseInsensitive
+					}
+					if s.Options.MatchOptions.SlashInsensitive != nil {
+						host.Data.Attributes.MatchOptions.SlashInsensitive = *s.Options.MatchOptions.SlashInsensitive
+					}
+
+					if s.Options.NotFoundAction.ForwardParams != nil {
+						host.Data.Attributes.NotFoundAction.ForwardParams = *s.Options.NotFoundAction.ForwardParams
+					}
+					if s.Options.NotFoundAction.ForwardPath != nil {
+						host.Data.Attributes.NotFoundAction.ForwardPath = *s.Options.NotFoundAction.ForwardPath
+					}
+					if s.Options.NotFoundAction.Custom404Body != nil {
+						host.Data.Attributes.NotFoundAction.Custom404Body = *s.Options.NotFoundAction.Custom404Body
+					}
+					if s.Options.NotFoundAction.ResponseCode != nil {
+						host.Data.Attributes.NotFoundAction.ResponseCode = *s.Options.NotFoundAction.ResponseCode
+					}
+					if s.Options.NotFoundAction.ResponseURL != nil {
+						host.Data.Attributes.NotFoundAction.ResponseURL = *s.Options.NotFoundAction.ResponseURL
+					}
+
+					if s.Options.Security.HTTPSUpgrade != nil {
+						host.Data.Attributes.Security.HTTPSUpgrade = *s.Options.Security.HTTPSUpgrade
+					}
+					if s.Options.Security.PreventForeignEmbedding != nil {
+						host.Data.Attributes.Security.PreventForeignEmbedding = *s.Options.Security.PreventForeignEmbedding
+					}
+					if s.Options.Security.HSTSIncludeSubDomains != nil {
+						host.Data.Attributes.Security.HstsIncludeSubDomains = *s.Options.Security.HSTSIncludeSubDomains
+					}
+					if s.Options.Security.HSTSMaxAge != nil {
+						host.Data.Attributes.Security.HstsMaxAge = *s.Options.Security.HSTSMaxAge
+					}
+					if s.Options.Security.HSTSPreload != nil {
+						host.Data.Attributes.Security.HstsPreload = *s.Options.Security.HSTSPreload
+					}
+					break
+				}
+			}
+
+			res, err := c.UpdateHost(host)
 			if err != nil {
 				log.Error().Err(err).Msg("")
+				return
 			}
 
 			res.Print()

@@ -25,23 +25,23 @@ type Host struct {
 			DNSStatus         string `json:"dns_status"`
 			CertificateStatus string `json:"certificate_status"`
 			MatchOptions      struct {
-				CaseInsensitive  interface{} `json:"case_insensitive"`
-				SlashInsensitive interface{} `json:"slash_insensitive"`
+				CaseInsensitive  interface{} `json:"case_insensitive,omitempty"`
+				SlashInsensitive interface{} `json:"slash_insensitive,omitempty"`
 			} `json:"match_options"`
 			Security struct {
-				HTTPSUpgrade            interface{} `json:"https_upgrade"`
-				PreventForeignEmbedding interface{} `json:"prevent_foreign_embedding"`
-				HstsIncludeSubDomains   interface{} `json:"hsts_include_sub_domains"`
-				HstsMaxAge              interface{} `json:"hsts_max_age"`
-				HstsPreload             interface{} `json:"hsts_preload"`
+				HTTPSUpgrade            interface{} `json:"https_upgrade,omitempty"`
+				PreventForeignEmbedding interface{} `json:"prevent_foreign_embedding,omitempty"`
+				HstsIncludeSubDomains   interface{} `json:"hsts_include_sub_domains,omitempty"`
+				HstsMaxAge              interface{} `json:"hsts_max_age,omitempty"`
+				HstsPreload             interface{} `json:"hsts_preload,omitempty"`
 			} `json:"security"`
 			NotFoundAction struct {
-				ForwardParams        interface{} `json:"forward_params"`
-				ForwardPath          interface{} `json:"forward_path"`
-				Custom404BodyPresent bool        `json:"custom_404_body_present"`
-				Custom404Body        string      `json:"custom_404_body"`
-				ResponseCode         int         `json:"response_code"`
-				ResponseURL          interface{} `json:"response_url"`
+				ForwardParams        interface{} `json:"forward_params,omitempty"`
+				ForwardPath          interface{} `json:"forward_path,omitempty"`
+				Custom404BodyPresent bool        `json:"custom_404_body_present,omitempty"`
+				Custom404Body        string      `json:"custom_404_body,omitempty"`
+				ResponseCode         int         `json:"response_code,omitempty"`
+				ResponseURL          interface{} `json:"response_url,omitempty"`
 			} `json:"not_found_action"`
 			AcmeEnabled        bool `json:"acme_enabled"`
 			DetectedDNSEntries []struct {
@@ -228,6 +228,7 @@ func (r *Host) Print() {
           - {{ .  }}
           {{- end }}
         {{- end }}
+
   `)
 
 	var w bytes.Buffer
