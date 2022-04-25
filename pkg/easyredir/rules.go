@@ -93,9 +93,8 @@ func (c *Client) ListRules(options *RulesOptions) (rules Rules, err error) {
 
 	for {
 		res := Rules{}
-		req := &http.Request{}
 
-		req, err = http.NewRequest("GET", fmt.Sprintf("%s/rules?limit=%d&sq=%s&tq=%s&starting_after=%s&ending_before=%s", c.baseURL, limit, sourceURL, targetURL, startingAfter, endingBefore), nil)
+		req, err := http.NewRequest("GET", fmt.Sprintf("%s/rules?limit=%d&sq=%s&tq=%s&starting_after=%s&ending_before=%s", c.baseURL, limit, sourceURL, targetURL, startingAfter, endingBefore), nil)
 		if err != nil {
 			return rules, fmt.Errorf("ListRules: unable to create request: %w", err)
 		}

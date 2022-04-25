@@ -18,7 +18,6 @@ const (
 	defaultHSTSMaxAge              int    = 0     // verified
 	defaultHSTSPreload             bool   = false // verified
 	defaultHTTPSUpgrade            bool   = false // verified
-	defaultID                      string = ""    // verified
 	defaultPreventForeignEmbedding bool   = false
 	defaultResponseCode            int    = 301
 	defaultResponseType            string = "moved_permanently"

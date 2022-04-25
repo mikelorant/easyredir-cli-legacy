@@ -95,7 +95,6 @@ func (c *Client) ListHosts(options *HostsOptions) (hosts Hosts, err error) {
 
 	for {
 		res := Hosts{}
-		req := &http.Request{}
 
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s/hosts?limit=%d&starting_after=%s&ending_before=%s", c.baseURL, limit, startingAfter, endingBefore), nil)
 		if err != nil {
