@@ -201,7 +201,7 @@ func (r *Rules) Print() {
 }
 
 func (r *Rule) Print() {
-	fmt.Println(text.FgYellow.Sprint("RULE:\n"))
+	fmt.Println(text.FgYellow.Sprint("RULE:"))
 
 	tmpl := heredoc.Doc(`
     ID:   {{ .Data.ID }}

@@ -157,7 +157,7 @@ func (rs *YAMLRedirects) Defaults() {
 }
 
 func (r *YAMLRedirect) Print() {
-	fmt.Println(text.FgCyan.Sprint("CONFIG:\n"))
+	fmt.Println(text.FgCyan.Sprint("CONFIG:"))
 
 	tmpl := heredoc.Doc(`
 		{{- with .Meta }}

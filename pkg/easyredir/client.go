@@ -110,7 +110,7 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) (err error) {
 }
 
 func (e *errorResponse) Print() {
-	fmt.Println(text.FgRed.Sprint("ERROR:\n"))
+	fmt.Println(text.FgRed.Sprint("ERROR:"))
 
 	tmpl := heredoc.Doc(`
     Type:   {{ .Type }}

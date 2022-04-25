@@ -181,7 +181,7 @@ func (r *Hosts) Print() {
 }
 
 func (r *Host) Print() {
-	fmt.Println(text.FgMagenta.Sprint("HOST:\n"))
+	fmt.Println(text.FgMagenta.Sprint("HOST:"))
 
 	tmpl := heredoc.Doc(`
     ID:   {{ .Data.ID  }}
