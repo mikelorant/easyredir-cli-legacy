@@ -65,8 +65,8 @@ func doGetRules() {
 	}
 
 	o := easyredir.RulesOptions{
-		SourceURL:     getSourceURL,
-		TargetURL:     getTargetURL,
+		SourceURL: getSourceURL,
+		TargetURL: getTargetURL,
 	}
 	rules, err := c.ListRules(&o)
 	if err != nil {
