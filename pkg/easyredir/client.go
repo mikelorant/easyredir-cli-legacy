@@ -2,12 +2,10 @@ package easyredir
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"text/template"
 
 	"github.com/MakeNowJust/heredoc/v2"
@@ -68,11 +66,9 @@ func NewClient() (c *Client, err error) {
 }
 
 func (c *Client) sendRequest(req *http.Request, v interface{}) (err error) {
-	cred := authorization(c.apiKey, c.apiSecret)
-
+	req.SetBasicAuth(c.apiKey, c.apiSecret)
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json; charset=utf-8")
-	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", cred))
 
 	if req.Method == "POST" || req.Method == "PUT" || req.Method == "PATCH" {
 		req.Header.Set("Idempotency-Key", uuid.NewString())
@@ -110,18 +106,6 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) (err error) {
 	}
 
 	return nil
-}
-
-func authorization(username string, password string) (credential string) {
-	userPass := strings.Join([]string{username, password}, ":")
-	userPassBytes := []byte(userPass)
-
-	len := base64.StdEncoding.EncodedLen(len(userPassBytes))
-	credBytes := make([]byte, len)
-
-	base64.StdEncoding.Encode(credBytes, userPassBytes)
-
-	return string(credBytes)
 }
 
 func (e *errorResponse) Print() {
