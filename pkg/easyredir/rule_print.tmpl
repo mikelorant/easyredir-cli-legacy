@@ -1,0 +1,16 @@
+ID:   {{ .Data.ID }}
+Type: {{ .Data.Type }}
+Attributes:
+  Forward Query: {{ .Data.Attributes.ForwardParams }}
+  Forward Path:  {{ .Data.Attributes.ForwardPath }}
+  Response Type: {{ .Data.Attributes.ResponseType }}
+  Source URLs:
+  {{- range .Data.Attributes.SourceUrls }}
+  - {{ .}}
+  {{- end }}
+  Target URL:    {{ .Data.Attributes.TargetURL }}
+Relationships:
+  Source Hosts:
+  {{- range .Data.Relationships.SourceHosts.Data }}
+  - {{ .ID }}
+  {{- end }}

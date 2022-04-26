@@ -1,0 +1,9 @@
+Type:   {{ .Type }}
+Message: {{ .Message }}
+Errors:
+{{- range .Errors }}
+- Resource: {{ .Resource }}
+  Code:  {{ .Code }}
+  Param: {{ .Param }}
+  Message: {{ .Message }}
+{{- end}}

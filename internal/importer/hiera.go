@@ -10,11 +10,16 @@ import (
 
 	"github.com/mikelorant/easyredir-cli/pkg/easyredir"
 
-	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/alecthomas/chroma/quick"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
+
+	_ "embed"
 )
+
+//go:embed hiera_print.tmpl
+var hieraPrintTemplate string
 
 type HieraRedirects []HieraRedirect
 
@@ -156,61 +161,17 @@ func (rs *HieraRedirects) Import(preview bool) {
 }
 
 func (r *HieraRedirect) Print() {
-	tmpl := heredoc.Doc(`
-    Name: {{ .Name }}
-    Host: {{ .Host }}
-    Redirect: {{ .Redirect }}
-    {{- with .Type }}
-    Type: {{ . }}
-    {{- end }}
-    {{- with .ExtraRewrites }}
-    Extra Rewrites:
-    {{- range . }}
-    - {{ . }}
-    {{- end }}
-    {{- end }}
-    {{- with .SquashPath}}
-    Squash Path: {{ . }}
-    {{- end }}
-    {{- with .Aliases }}
-    Aliases:
-    {{- range . }}
-    - {{ . }}
-    {{- end }}
-    {{- end }}
-    {{- with .RewriteRules }}
-    Rewrite Rules:
-    {{- range . }}
-    - Pattern: {{ .Pattern }}
-      Target: {{ .Target }}
-      {{- if or (.Flags.Last) (.Flags.Redirect) (.Flags.QueryStringDiscard) (.Flags.NoEscape) }}
-      {{- with .Flags }}
-      Flags:
-        {{- with .Last }}
-        Last: {{ . }}
-        {{- end }}
-        {{- with .Redirect }}
-        Redirect: {{ . }}
-        {{- end }}
-        {{- with .QueryStringDiscard }}
-        Query String Discard: {{ . }}
-        {{- end }}
-        {{- with .NoEscape }}
-        No Escape: {{ . }}
-        {{- end }}
-      {{- end }}
-      {{- end }}
-    {{- end }}
-    {{- end }}
-
-  `)
+	fmt.Printf("%s:\n", text.FgCyan.Sprint("CONFIG"))
+	fmt.Println()
 
 	var w bytes.Buffer
 
-	t := template.Must(template.New("").Parse(tmpl))
+	t := template.Must(template.New("").Parse(hieraPrintTemplate))
 	t.Execute(&w, r)
 
 	quick.Highlight(os.Stdout, w.String(), "yaml", "terminal256", "pygments")
+
+	fmt.Println()
 
 	return
 }

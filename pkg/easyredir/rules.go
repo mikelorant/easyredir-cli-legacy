@@ -12,9 +12,12 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 
-	"github.com/MakeNowJust/heredoc/v2"
+	_ "embed"
 	"github.com/alecthomas/chroma/quick"
 )
+
+//go:embed rule_print.tmpl
+var rulePrintTemplate string
 
 type Rule struct {
 	Data struct {
@@ -198,35 +201,22 @@ func (r *Rules) Print() {
 		t.AppendRows(row)
 	}
 	t.Render()
+
+	return
 }
 
 func (r *Rule) Print() {
-	fmt.Println(text.FgYellow.Sprint("RULE:"))
-
-	tmpl := heredoc.Doc(`
-    ID:   {{ .Data.ID }}
-    Type: {{ .Data.Type }}
-    Attributes:
-      Forward Query: {{ .Data.Attributes.ForwardParams }}
-      Forward Path:  {{ .Data.Attributes.ForwardPath }}
-      Response Type: {{ .Data.Attributes.ResponseType }}
-      Source URLs:
-      {{- range .Data.Attributes.SourceUrls }}
-      - {{ .}}
-      {{- end }}
-      Target URL:    {{ .Data.Attributes.TargetURL }}
-    Relationships:
-      Source Hosts:
-      {{- range .Data.Relationships.SourceHosts.Data }}
-      - {{ .ID }}
-      {{- end }}
-
-  `)
+	fmt.Printf("%s:\n", text.FgYellow.Sprint("RULE"))
+	fmt.Println()
 
 	var w bytes.Buffer
 
-	t := template.Must(template.New("").Parse(tmpl))
+	t := template.Must(template.New("").Parse(rulePrintTemplate))
 	t.Execute(&w, r)
 
 	quick.Highlight(os.Stdout, w.String(), "yaml", "terminal256", "pygments")
+
+	fmt.Println()
+
+	return
 }

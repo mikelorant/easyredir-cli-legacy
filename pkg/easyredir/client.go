@@ -8,17 +8,21 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/alecthomas/chroma/quick"
 	"github.com/google/uuid"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+
+	_ "embed"
 )
 
 const (
 	baseURLV1 = "https://api.easyredir.com/v1"
 )
+
+//go:embed client_error.tmpl
+var clientErrorTemplate string
 
 type Client struct {
 	baseURL    string
@@ -110,24 +114,17 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) (err error) {
 }
 
 func (e *errorResponse) Print() {
-	fmt.Println(text.FgRed.Sprint("ERROR:"))
-
-	tmpl := heredoc.Doc(`
-    Type:   {{ .Type }}
-    Message: {{ .Message }}
-    Errors:
-    {{- range .Errors }}
-    - Resource: {{ .Resource }}
-      Code:  {{ .Code }}
-      Param: {{ .Param }}
-      Message: {{ .Message }}
-    {{- end}}
-  `)
+	fmt.Printf("%s:\n", text.FgRed.Sprint("ERROR"))
+	fmt.Println()
 
 	var w bytes.Buffer
 
-	t := template.Must(template.New("").Parse(tmpl))
+	t := template.Must(template.New("").Parse(clientErrorTemplate))
 	t.Execute(&w, e)
 
 	quick.Highlight(os.Stdout, w.String(), "yaml", "terminal256", "pygments")
+
+	fmt.Println()
+
+	return
 }

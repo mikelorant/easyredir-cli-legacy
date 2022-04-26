@@ -1,0 +1,46 @@
+ID:   {{ .Data.ID  }}
+Type: {{ .Data.Type  }}
+Attributes:
+  Name:               {{ .Data.Attributes.Name  }}
+  DNS Status:         {{ .Data.Attributes.DNSStatus  }}
+  Certificate Status: {{ .Data.Attributes.CertificateStatus  }}
+  Match Options:
+    Case Insensitive:  {{ .Data.Attributes.MatchOptions.CaseInsensitive  }}
+    Slash Insensitive: {{ .Data.Attributes.MatchOptions.SlashInsensitive  }}
+  Security:
+    HTTPS Upgrade:             {{ .Data.Attributes.Security.HTTPSUpgrade  }}
+    Prevent Foreign Embedding: {{ .Data.Attributes.Security.PreventForeignEmbedding  }}
+    HSTS Include Sub Domains:  {{ .Data.Attributes.Security.HstsIncludeSubDomains  }}
+    HSTS Max Age:              {{ .Data.Attributes.Security.HstsMaxAge  }}
+    HSTS Preload:              {{ .Data.Attributes.Security.HstsPreload  }}
+  Not Found Action:
+    Forward Params:          {{ .Data.Attributes.NotFoundAction.ForwardParams  }}
+    Forward Path:            {{ .Data.Attributes.NotFoundAction.ForwardPath  }}
+    Custom 404 Body Present: {{ .Data.Attributes.NotFoundAction.Custom404BodyPresent  }}
+    Response Code:           {{ .Data.Attributes.NotFoundAction.ResponseCode  }}
+    Response URL:            {{ .Data.Attributes.NotFoundAction.ResponseURL  }}
+  ACME Enabled: {{ .Data.Attributes.AcmeEnabled  }}
+  Detected DNS Entries:
+  {{- range .Data.Attributes.DetectedDNSEntries }}
+  - Type: {{ .Type  }}
+    Values:
+    {{- range .Values }}
+    - {{ .  }}
+    {{- end }}
+  {{- end }}
+  DNS Tested At: {{ .Data.Attributes.DNSTestedAt  }}
+  Required DNS Entries:
+    Recommended:
+    - Type: {{ .Data.Attributes.RequiredDNSEntries.Recommended.Type  }}
+      Values:
+      {{- range .Data.Attributes.RequiredDNSEntries.Recommended.Values }}
+      - {{ . }}
+      {{- end }}
+    Alternatives:
+    {{- range .Data.Attributes.RequiredDNSEntries.Alternatives }}
+    - Type: {{ .Type  }}
+      Values:
+      {{- range .Values }}
+      - {{ .  }}
+      {{- end }}
+    {{- end }}

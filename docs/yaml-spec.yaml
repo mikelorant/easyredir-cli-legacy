@@ -1,0 +1,26 @@
+- meta:
+    name: string
+    description: string
+    expires: time
+  sources:
+  - url: string (required)
+    options:
+      match_options:
+        case_insensitive: bool
+        slash_insensitive: bool
+      not_found_action:
+        forward_params: bool
+        forward_path: bool
+        custom_404_body: string
+        response_code: int (301, 302, 404)
+        response_url: string
+      security:
+        https_upgrade: bool
+        prevent_foreign_embedding: bool
+        hsts_include_sub_domains: bool
+        hsts_max_age: int (-1 for not being added)
+        hsts_preload: bool
+  target_url: string (required)
+  forward_params: bool
+  forward_path: bool
+  response_type: string (moved_pemanently, found)

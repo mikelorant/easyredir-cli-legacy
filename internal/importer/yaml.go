@@ -11,12 +11,16 @@ import (
 
 	"github.com/mikelorant/easyredir-cli/pkg/easyredir"
 
-	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/alecthomas/chroma/quick"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
+
+	_ "embed"
 )
+
+//go:embed yaml_print.tmpl
+var yamlPrintTemplate string
 
 type YAMLRedirects []YAMLRedirect
 
@@ -157,54 +161,17 @@ func (rs *YAMLRedirects) Defaults() {
 }
 
 func (r *YAMLRedirect) Print() {
-	fmt.Println(text.FgCyan.Sprint("CONFIG:"))
-
-	tmpl := heredoc.Doc(`
-		{{- with .Meta }}
-		Meta:
-		  {{- with .Name }}
-		  Name: {{ . }}
-		  {{- end }}
-		  {{- with .Description }}
-		  Description: {{ . }}
-		  {{- end }}
-		  {{- with .Expires }}
-		  Expires: {{ . }}
-		  {{- end }}
-		{{- end }}
-		Sources:
-		{{- range .Sources }}
-		- URL: {{ .URL }}
-		  Options:
-		    Match Options:
-		      Case Insensitive: {{ .Options.MatchOptions.CaseInsensitive }}
-		      Slash Insensitive: {{ .Options.MatchOptions.SlashInsensitive }}
-		    Not Found Action:
-		      Forward Params: {{ .Options.NotFoundAction.ForwardParams }}
-		      Forward Path: {{ .Options.NotFoundAction.ForwardPath }}
-		      Custom 404 Body Present: {{ .Options.NotFoundAction.Custom404Body }}
-		      Response Code: {{ .Options.NotFoundAction.ResponseCode }}
-		      Response URL: {{ .Options.NotFoundAction.ResponseURL }}
-		    Security:
-		      HTTPS Upgrade: {{ .Options.Security.HTTPSUpgrade }}
-		      Prevent Foreign Embedding: {{ .Options.Security.PreventForeignEmbedding }}
-		      HSTS Include Sub Domains: {{ .Options.Security.HSTSIncludeSubDomains }}
-		      HSTS Max Age: {{ .Options.Security.HSTSMaxAge }}
-		      HSTS Preload: {{ .Options.Security.HSTSPreload }}
-		{{- end }}
-		Target URL: {{ .TargetURL }}
-		Forward Params: {{ .ForwardParams }}
-		Forward Path: {{ .ForwardPath }}
-		Response Type: {{ .ResponseType }}
-
-  `)
+	fmt.Printf("%s:\n", text.FgCyan.Sprint("CONFIG"))
+	fmt.Println()
 
 	var w bytes.Buffer
 
-	t := template.Must(template.New("").Parse(tmpl))
+	t := template.Must(template.New("").Parse(yamlPrintTemplate))
 	t.Execute(&w, r)
 
 	quick.Highlight(os.Stdout, w.String(), "yaml", "terminal256", "pygments")
+
+	fmt.Println()
 
 	return
 }
@@ -219,6 +186,10 @@ func (rs *YAMLRedirects) Import(preview bool) {
 	for _, r := range *rs {
 		r.Print()
 
+		if preview == true {
+			return
+		}
+
 		rule := easyredir.Rule{}
 		rule.Data.Attributes.ForwardParams = *r.ForwardParams
 		rule.Data.Attributes.ForwardPath = *r.ForwardPath
@@ -228,10 +199,6 @@ func (rs *YAMLRedirects) Import(preview bool) {
 			rule.Data.Attributes.SourceUrls = append(rule.Data.Attributes.SourceUrls, *v.URL)
 		}
 		rule.Data.Attributes.TargetURL = *r.TargetURL
-
-		if preview == true {
-			return
-		}
 
 		res, err := c.CreateRule(&rule)
 		if err != nil {

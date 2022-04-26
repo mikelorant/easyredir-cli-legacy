@@ -1,0 +1,45 @@
+Name: {{ .Name }}
+Host: {{ .Host }}
+Redirect: {{ .Redirect }}
+{{- with .Type }}
+Type: {{ . }}
+{{- end }}
+{{- with .ExtraRewrites }}
+Extra Rewrites:
+{{- range . }}
+- {{ . }}
+{{- end }}
+{{- end }}
+{{- with .SquashPath}}
+Squash Path: {{ . }}
+{{- end }}
+{{- with .Aliases }}
+Aliases:
+{{- range . }}
+- {{ . }}
+{{- end }}
+{{- end }}
+{{- with .RewriteRules }}
+Rewrite Rules:
+{{- range . }}
+- Pattern: {{ .Pattern }}
+  Target: {{ .Target }}
+  {{- if or (.Flags.Last) (.Flags.Redirect) (.Flags.QueryStringDiscard) (.Flags.NoEscape) }}
+  {{- with .Flags }}
+  Flags:
+    {{- with .Last }}
+    Last: {{ . }}
+    {{- end }}
+    {{- with .Redirect }}
+    Redirect: {{ . }}
+    {{- end }}
+    {{- with .QueryStringDiscard }}
+    Query String Discard: {{ . }}
+    {{- end }}
+    {{- with .NoEscape }}
+    No Escape: {{ . }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
