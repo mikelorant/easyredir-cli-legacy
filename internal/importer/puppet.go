@@ -123,7 +123,7 @@ func (rs *PuppetRedirects) Import(preview bool) {
 		res, err := c.CreateRule(&rule)
 		if err != nil {
 			log.Error().Err(err).Msg("")
-			return
+			continue
 		}
 
 		res.Print()

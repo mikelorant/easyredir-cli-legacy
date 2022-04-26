@@ -187,7 +187,7 @@ func (rs *YAMLRedirects) Import(preview bool) {
 		r.Print()
 
 		if preview == true {
-			return
+			continue
 		}
 
 		rule := easyredir.Rule{}
