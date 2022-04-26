@@ -4,18 +4,19 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/tailscale/hujson"
 	"io"
 	"io/ioutil"
 	"os"
 	"regexp"
-  "text/template"
+	"text/template"
+
+	"github.com/tailscale/hujson"
 
 	"github.com/mikelorant/easyredir-cli/pkg/easyredir"
 
-  "github.com/alecthomas/chroma/quick"
-	"github.com/rs/zerolog/log"
+	"github.com/alecthomas/chroma/quick"
 	"github.com/jedib0t/go-pretty/v6/text"
+	"github.com/rs/zerolog/log"
 
 	_ "embed"
 )
@@ -24,10 +25,8 @@ const (
 	manifestStart string = "$controllers = "
 )
 
-var (
-  //go:embed puppet_print.tmpl
-  puppetPrintTemplate string
-)
+//go:embed puppet_print.tmpl
+var puppetPrintTemplate string
 
 type PuppetRedirects []PuppetRedirect
 
@@ -35,9 +34,9 @@ type PuppetRedirect struct {
 	Name          string
 	SourceURLs    []string `json:"apache_hosts"`
 	TargetURL     string   `json:"apache_redirect"`
-  ForwardParams *bool
-  ForwardPath   *bool
-  ResponseType  *string
+	ForwardParams *bool
+	ForwardPath   *bool
+	ResponseType  *string
 }
 
 func (rs *PuppetRedirects) Load(file string) {
@@ -50,7 +49,7 @@ func (rs *PuppetRedirects) Load(file string) {
 	startOffset := scanFile(f, []byte(manifestStart)) + int64(len(manifestStart))
 	endOffset := scanBracket(f, startOffset)
 
-  block := getBlock(file, int(startOffset), int(endOffset))
+	block := getBlock(file, int(startOffset), int(endOffset))
 	res := convertPuppet(block)
 
 	rawRedirects := make(map[string]map[string]PuppetRedirect)
@@ -82,12 +81,12 @@ func (rs *PuppetRedirects) Defaults() {
 			r.ResponseType = &defaultResponseType
 		}
 
-    dr.Name = r.Name
+		dr.Name = r.Name
 		dr.ForwardParams = r.ForwardParams
 		dr.ForwardPath = r.ForwardPath
 		dr.ResponseType = r.ResponseType
-    dr.SourceURLs = r.SourceURLs
-    dr.TargetURL = r.TargetURL
+		dr.SourceURLs = r.SourceURLs
+		dr.TargetURL = r.TargetURL
 
 		*drs = append(*drs, *dr)
 	}
@@ -97,16 +96,16 @@ func (rs *PuppetRedirects) Defaults() {
 }
 
 func (rs *PuppetRedirects) Import(preview bool) {
-  c, err := easyredir.NewClient()
+	c, err := easyredir.NewClient()
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		return
 	}
 
-  for _, r := range *rs {
-    r.Print()
+	for _, r := range *rs {
+		r.Print()
 
-    if preview == true {
+		if preview == true {
 			return
 		}
 
@@ -127,11 +126,11 @@ func (rs *PuppetRedirects) Import(preview bool) {
 		}
 
 		res.Print()
-  }
+	}
 }
 
 func (r *PuppetRedirect) Print() {
-  fmt.Printf("%s:\n", text.FgCyan.Sprint("CONFIG"))
+	fmt.Printf("%s:\n", text.FgCyan.Sprint("CONFIG"))
 	fmt.Println()
 
 	var w bytes.Buffer
@@ -208,18 +207,18 @@ func convertPuppet(content []byte) []byte {
 }
 
 func getBlock(filename string, startOffset int, endOffset int) []byte {
-  fd, err := os.Open(filename)
-  if err != nil {
-    log.Error().Err(err).Msg("")
-    return nil
-  }
+	fd, err := os.Open(filename)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return nil
+	}
 
-  reader := bufio.NewReaderSize(fd, endOffset - startOffset)
-  _, _ = reader.Discard(startOffset)
-  block, err := reader.Peek(endOffset - startOffset)
-  if err != nil {
-    fmt.Println(err)
-  }
+	reader := bufio.NewReaderSize(fd, endOffset-startOffset)
+	_, _ = reader.Discard(startOffset)
+	block, err := reader.Peek(endOffset - startOffset)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-  return block
+	return block
 }
