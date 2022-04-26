@@ -21,6 +21,11 @@ func Import(options *Options) {
 		r.Load(options.File)
 		r.Defaults()
 		r.Import(options.Preview)
+	case "puppet":
+		r := PuppetRedirects{}
+		r.Load(options.File)
+		r.Defaults()
+		r.Import(options.Preview)
 	default:
 		fmt.Println("Unknown format.")
 	}

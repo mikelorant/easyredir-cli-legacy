@@ -3,7 +3,6 @@ module github.com/mikelorant/easyredir-cli
 go 1.18
 
 require (
-	github.com/MakeNowJust/heredoc/v2 v2.0.1
 	github.com/alecthomas/chroma v0.10.0
 	github.com/google/uuid v1.3.0
 	github.com/jedib0t/go-pretty/v6 v6.3.1
@@ -11,6 +10,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.11.0
+	github.com/tailscale/hujson v0.0.0-20220425225625-67d83cd6edf6
 	gopkg.in/yaml.v2 v2.4.0
 )
 

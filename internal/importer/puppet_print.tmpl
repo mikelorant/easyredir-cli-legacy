@@ -1,0 +1,6 @@
+Name: {{ .Name }}
+Source URLs:
+{{- range .SourceURLs }}
+- {{ . }}
+{{- end }}
+Target URL: {{ .TargetURL }}
